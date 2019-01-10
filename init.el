@@ -87,5 +87,5 @@
 ;;現在行をハイライト
 (global-hl-line-mode t)
 (custom-set-faces
-'(hl-line ((t (:background "gray40" t))))
+'(hl-line ((t (:background "gray20" t))))
 )
