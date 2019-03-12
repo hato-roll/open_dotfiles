@@ -16,22 +16,24 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (dired-ranger ranger xclip rainbow-mode)))
+ '(package-selected-packages
+   (quote
+    (rainbow-delimiters dired-ranger ranger xclip rainbow-mode)))
  '(safe-local-variable-values (quote ((TeX-master . t)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(hl-line ((t (:background "gray20" t)))))
 
 ;;左側に行数を表示させる
-(require 'linum) 
+(require 'linum)
 (global-linum-mode)
 (setq linum-format "%3d ")
 (setq scroll-conservatively 1)
 ;;列数
-(line-number-mode t) 
+(line-number-mode t)
 (column-number-mode t)
 
 ;;; *.~ とかのバックアップファイルを作らない
@@ -84,8 +86,32 @@
 ;;dired を殺してdired-rangerにする
 (define-key global-map (kbd "C-x d") "\M-x ranger")
 
+;;M - mをlinum-modeの切り替えにする
+(define-key global-map (kbd "M-m") "\M-x linum-mode")
+
 ;;現在行をハイライト
 (global-hl-line-mode t)
-(custom-set-faces
-'(hl-line ((t (:background "gray20" t))))
-)
+
+;; rainbow-delimitersをpackage installして
+;; 括弧の色分けをする
+(require 'rainbow-delimiters)
+;(add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+;(global-rainbow-delimiters-mode)
+(require 'cl-lib)
+(require 'color)
+(cl-loop
+ for index from 1 to rainbow-delimiters-max-face-count
+ do
+ (let ((face (intern (format "rainbow-delimiters-depth-%d-face" index))))
+   (cl-callf color-saturate-name (face-foreground face) 30)))
+
+;; バッファの自動再読み込み
+(global-auto-revert-mode 1)
+
+;; yes no to y n
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; スクリプトっぽかったら勝手に実行ビットを立てる
+;;ファイルの先頭が#!で始まってる必要がある
+ (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
