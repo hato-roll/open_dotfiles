@@ -16,9 +16,23 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(flycheck-display-errors-delay 0.5)
+ '(flycheck-display-errors-function
+   (lambda
+     (errors)
+     (let
+         ((messages
+           (mapcar
+            (function flycheck-error-message)
+            errors)))
+       (popup-tip
+        (mapconcat
+         (quote identity)
+         messages "
+")))))
  '(package-selected-packages
    (quote
-    (rainbow-delimiters dired-ranger ranger xclip rainbow-mode)))
+    (flycheck-popup-tip flymake-cppcheck rainbow-delimiters dired-ranger ranger xclip rainbow-mode)))
  '(safe-local-variable-values (quote ((TeX-master . t)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -28,12 +42,12 @@
  '(hl-line ((t (:background "gray20" t)))))
 
 ;;左側に行数を表示させる
-(require 'linum)
+(require 'linum) 
 (global-linum-mode)
 (setq linum-format "%3d ")
 (setq scroll-conservatively 1)
 ;;列数
-(line-number-mode t)
+(line-number-mode t) 
 (column-number-mode t)
 
 ;;; *.~ とかのバックアップファイルを作らない
@@ -62,15 +76,15 @@
 (load-theme 'tango-dark t)
 
 ;; クリップボードと同期
-(setq interprogram-paste-function
-      (lambda ()
-    (shell-command-to-string "xsel -b -o")))
-(setq interprogram-cut-function
-      (lambda (text &optional rest)
-    (let* ((process-connection-type nil)
-           (proc (start-process "xsel" "*Messages*" "xsel" "-b" "-i")))
-      (process-send-string proc text)
-                 (process-send-eof proc))))
+;; (setq interprogram-paste-function
+;;       (lambda ()
+;;     (shell-command-to-string "xsel -b -o")))
+;; (setq interprogram-cut-function
+;;       (lambda (text &optional rest)
+;;     (let* ((process-connection-type nil)
+;;            (proc (start-process "xsel" "*Messages*" "xsel" "-b" "-i")))
+;;       (process-send-string proc text)
+;;                  (process-send-eof proc))))
 
 ;; タブにスペースを使用する
 (setq-default tab-width 2 indent-tabs-mode nil)
@@ -115,3 +129,50 @@
 ;; スクリプトっぽかったら勝手に実行ビットを立てる
 ;;ファイルの先頭が#!で始まってる必要がある
  (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+
+
+
+;; (require 'flymake)
+;; (defun flymake-get-make-cmdline (source base-dir)
+;;   (list "make"
+;;         (list "-s" "-C"
+;;               base-dir
+;;               (concat "CHK_SOURCES=" source)
+;;               "SYNTAX_CHECK_MODE=1")))
+
+
+;; (require 'flymake)
+;; (defun flymake-cc-init ()
+;;   (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+;;                        'flymake-create-temp-inplace))
+;;          (local-file  (file-relative-name
+;;                        temp-file
+;;                        (file-name-directory buffer-file-name))))
+;;     (list "g++" (list "-Wall" "-Wextra" "-fsyntax-only" local-file))))
+
+;; (push '("\\.cc$" flymake-cc-init) flymake-allowed-file-name-masks)
+;; (add-hook 'c++-mode-hook
+;;           '(lambda ()
+;;              (flymake-mode t)))
+
+
+;;flycheckとflycheck-popup-tipをpackage-installしとかないといけない？よくわからん
+;; (when (require 'flycheck nil 'noerror)
+;;   (custom-set-variables
+;;    ;; エラーをポップアップで表示
+;;    '(flycheck-display-errors-function
+;;      (lambda (errors)
+;;        (let ((messages (mapcar #'flycheck-error-message errors)))
+;;          (popup-tip (mapconcat 'identity messages "\n")))))
+;;    '(flycheck-display-errors-delay 0.5))
+;;   (define-key flycheck-mode-map (kbd "C-M-n") 'flycheck-next-error)
+;;   (define-key flycheck-mode-map (kbd "C-M-p") 'flycheck-previous-error)
+;;   (add-hook 'c-mode-common-hook 'flycheck-mode))
+;; (add-hook 'c++-mode-hook (lambda () (setq flycheck-gcc-language-standard "c++17")))
+
+;; (with-eval-after-load 'flycheck
+;;   '(add-hook 'flycheck-mode-hook 'flycheck-popup-tip-mode))
+;; (eval-after-load 'flycheck
+;;   (if (display-graphic-p)
+;;       (flycheck-pos-tip-mode)
+;;     (flycheck-popup-tip-mode)))
